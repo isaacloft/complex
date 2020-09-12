@@ -3,23 +3,23 @@ language: generic
 services:
   - docker
 before_install:
-  - docker build -t isaac/complex-test -f ./client/Dockerfile.dev ./client
+  - docker build -t isaacloft0906/complex-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run -e CI=true isaac/complex-test npm test -- --coverage
+  - docker run -e CI=true isaacloft0906/complex-test npm test -- --coverage
 
 after_success:
-  - docker build -t isaac/client ./client
-  - docker build -t isaac/server ./server
-  - docker build -t isaac/nginx ./nginx
-  - docker build -t isaac/worker ./worker
+  - docker build -t isaacloft0906/client ./client
+  - docker build -t isaacloft0906/server ./server
+  - docker build -t isaacloft0906/nginx ./nginx
+  - docker build -t isaacloft0906/worker ./worker
  # push above to docker hub, login required
 
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  - docker push isaac/client
-  - docker push isaac/server
-  - docker push isaac/nginx
-  - docker push isaac/worker
+  - docker push isaacloft0906/client
+  - docker push isaacloft0906/server
+  - docker push isaacloft0906/nginx
+  - docker push isaacloft0906/worker
 
 
 
