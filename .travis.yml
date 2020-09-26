@@ -33,7 +33,7 @@ before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
   # docker build and tag a dev version for running frontend tests
-  - docker build -t isaacloft0906/react-test -f ./client/Dockerfile.dev
+  - docker build -t isaacloft0906/react-test -f ./client/Dockerfile.dev ./client
 script:
   # run previously built dev docker with frontend test(s)
   - docker run -e CI=true isaacloft0906/docker-react npm test
