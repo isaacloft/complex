@@ -1,9 +1,44 @@
 sudo: required
 services:
   - docker
+env:
+  global:
+    # Store unique deployment ID
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
+  # decrypt service-account.json
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+  
+  # set up google cloud cli
   - curl https://sdk.cloud.google.com | bash > /dev/null;
   - source $HOME/google-cloud-sdk/path.bash.inc
+
+  # google cloud cli update kubectl
   - gcloud components update kubectl
-  - gcloud auth activate-service-account --key-file servcie-account.json
+
+  # use decrypted service-account.json
+  - gcloud auth activate-service-account --key-file service-account.json
+
+  # set target kube project name
+  - gcloud config set project complex-kube-290512
+
+  # set target project global zone
+  - gcloud config set compute/zone australia-southeast1-c
+
+  # set kube container cluster name
+  - gcloud container clusters get-credentials complex-kube
+
+  # echo out docker password from env vars and use it in docker login cmd
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+  # docker build and tag a dev version for running frontend tests
+  - docker build -t isaacloft0906/react-test -f ./client/Dockerfile.dev
+script:
+  # run previously built dev docker with frontend test(s)
+  - docker run -e CI=true isaacloft0906/docker-react npm test
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
